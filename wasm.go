@@ -22,10 +22,9 @@ func init() {
 }
 
 type WebAssembly struct {
-	wasi    *wasi_http.WasiHTTP
-	handler http.Handler
-	rt      wazero.Runtime
-	module  wazero.CompiledModule
+	wasi   *wasi_http.WasiHTTP
+	rt     wazero.Runtime
+	loader *WebAssemblyLoader
 
 	WebAssemblyFile string `json:"wasm_file,omitempty"`
 }
@@ -58,15 +57,25 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 			w.rt.Close(ctx)
 		}
 	}()
+
 	var data []byte
 	data, err = os.ReadFile(w.WebAssemblyFile)
 	if err != nil {
 		return err
 	}
 
-	w.module, err = w.rt.CompileModule(ctx, data)
+	var mod wazero.CompiledModule
+	mod, err = w.rt.CompileModule(ctx, data)
 	if err != nil {
 		return err
+	}
+
+	w.loader = &WebAssemblyLoader{
+		rt:     w.rt,
+		module: mod,
+
+		// TODO: fill out this config here
+		moduleConfig: wazero.NewModuleConfig(),
 	}
 
 	_, err = wasi_snapshot_preview1.Instantiate(ctx, w.rt)
@@ -83,14 +92,13 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 }
 
 func (w *WebAssembly) ServeHTTP(res http.ResponseWriter, req *http.Request, next caddyhttp.Handler) error {
-	// TODO: make this a handler pool instead of creating a new one every time
-	instance, err := w.rt.InstantiateModule(req.Context(), w.module, wazero.NewModuleConfig())
-
+	instance, err := w.loader.GetOrLoad(req.Context())
+	defer instance.Release()
 	if err != nil {
 		return err
 	}
-	w.handler = w.wasi.MakeHandler(instance)
-	w.handler.ServeHTTP(res, req)
+	handler := w.wasi.MakeHandler(instance.module)
+	handler.ServeHTTP(res, req)
 	return nil
 }
 

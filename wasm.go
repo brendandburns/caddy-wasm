@@ -2,7 +2,9 @@ package caddy_wasm
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/caddyserver/caddy/v2"
@@ -27,6 +29,7 @@ type WebAssembly struct {
 	loader *WebAssemblyLoader
 
 	WebAssemblyFile string `json:"wasm_file,omitempty"`
+	WebAssemblyURL  string `json:"wasm_url,omitempty"`
 }
 
 func (WebAssembly) CaddyModule() caddy.ModuleInfo {
@@ -36,12 +39,36 @@ func (WebAssembly) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
-func (w *WebAssembly) Validate() error {
-	if len(w.WebAssemblyFile) == 0 {
-		return fmt.Errorf("no wasm file specified")
+func (w *WebAssembly) loadWasm() ([]byte, error) {
+	if len(w.WebAssemblyFile) > 0 {
+		return os.ReadFile(w.WebAssemblyFile)
 	}
-	if _, err := os.Stat(w.WebAssemblyFile); os.IsNotExist(err) {
-		return fmt.Errorf("wasm file does not exist: %s", w.WebAssemblyFile)
+	res, err := http.Get(w.WebAssemblyURL)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	return io.ReadAll(res.Body)
+}
+
+func (w *WebAssembly) Validate() error {
+	if len(w.WebAssemblyFile) == 0 && len(w.WebAssemblyURL) == 0 {
+		return fmt.Errorf("no wasm file or url specified")
+	}
+	if len(w.WebAssemblyFile) > 0 && len(w.WebAssemblyURL) > 0 {
+		return fmt.Errorf("both wasm file and url specified")
+	}
+
+	if len(w.WebAssemblyFile) > 0 {
+		if _, err := os.Stat(w.WebAssemblyFile); os.IsNotExist(err) {
+			return fmt.Errorf("wasm file does not exist: %s", w.WebAssemblyFile)
+		}
+	}
+	if len(w.WebAssemblyURL) > 0 {
+		_, err := url.Parse(w.WebAssemblyURL)
+		if err != nil {
+			return fmt.Errorf("invalid wasm url: %s", w.WebAssemblyURL)
+		}
 	}
 	return nil
 }
@@ -59,7 +86,7 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 	}()
 
 	var data []byte
-	data, err = os.ReadFile(w.WebAssemblyFile)
+	data, err = w.loadWasm()
 	if err != nil {
 		return err
 	}
@@ -73,6 +100,8 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 	w.loader = &WebAssemblyLoader{
 		rt:     w.rt,
 		module: mod,
+
+		maxInstances: 10,
 
 		// TODO: fill out this config here
 		moduleConfig: wazero.NewModuleConfig(),
@@ -93,6 +122,9 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 
 func (w *WebAssembly) ServeHTTP(res http.ResponseWriter, req *http.Request, next caddyhttp.Handler) error {
 	instance, err := w.loader.GetOrLoad(req.Context())
+	if instance == nil {
+		return fmt.Errorf("no wasm instance available")
+	}
 	defer instance.Release()
 	if err != nil {
 		return err

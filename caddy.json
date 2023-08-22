@@ -8,7 +8,7 @@
 						{
 							"handle": [{
 								"handler": "wasm",
-								"wasm_file": "server.wasm"
+								"wasm_url": "https://raw.githubusercontent.com/brendandburns/wasi-go/tinygo_server/testdata/tinygo/http/server.wasm"
 							}]
 						}
 					]

@@ -2,6 +2,8 @@ package caddy_wasm
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"sync"
 
 	"github.com/tetratelabs/wazero"
@@ -33,6 +35,8 @@ type WebAssemblyLoader struct {
 	mut       sync.RWMutex
 	instances []*ModuleInstance
 
+	maxInstances int
+
 	rt           wazero.Runtime
 	module       wazero.CompiledModule
 	moduleConfig wazero.ModuleConfig
@@ -42,8 +46,17 @@ func (w *WebAssemblyLoader) Get() *ModuleInstance {
 	w.mut.RLock()
 	defer w.mut.RUnlock()
 
+	if len(w.instances) == 0 {
+		return nil
+	}
+
+	// this starts iterating from a random point in the slide
+	// to avoid always using the first one
+	// this may be overkill
+	len := len(w.instances)
+	mod := rand.Int() % len
 	for ix := range w.instances {
-		if w.instances[ix].tryAcquire() {
+		if w.instances[(mod+ix)%len].tryAcquire() {
 			return w.instances[ix]
 		}
 	}
@@ -54,6 +67,10 @@ func (w *WebAssemblyLoader) GetOrLoad(ctx context.Context) (*ModuleInstance, err
 	// try to use the ones we have
 	if inst := w.Get(); inst != nil {
 		return inst, nil
+	}
+
+	if len(w.instances) >= w.maxInstances {
+		return nil, fmt.Errorf("max instances reached")
 	}
 
 	// ok we need to make a new one

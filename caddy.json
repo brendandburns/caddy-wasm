@@ -1,0 +1,19 @@
+{
+	"apps": {
+		"http": {
+			"servers": {
+				"example": {
+					"listen": [":2015"],
+					"routes": [
+						{
+							"handle": [{
+								"handler": "wasm",
+								"wasm_file": "server.wasm"
+							}]
+						}
+					]
+				}
+			}
+		}
+	}
+}

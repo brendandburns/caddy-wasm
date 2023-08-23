@@ -89,3 +89,15 @@ func (w *WebAssemblyLoader) GetOrLoad(ctx context.Context) (*ModuleInstance, err
 	w.instances = append(w.instances, instance)
 	return instance, nil
 }
+
+type VersionedLoader struct {
+	Loaders map[string]*WebAssemblyLoader
+}
+
+func (v *VersionedLoader) GetOrLoad(ctx context.Context, version string) (*ModuleInstance, error) {
+	loader, ok := v.Loaders[version]
+	if !ok {
+		return nil, fmt.Errorf("no such version: %s", version)
+	}
+	return loader.GetOrLoad(ctx)
+}

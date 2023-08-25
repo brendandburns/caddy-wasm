@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 
 	"github.com/caddyserver/caddy/v2"
@@ -50,7 +49,11 @@ func (w *WebAssembly) Validate() error {
 	}
 
 	if len(w.WebAssemblyFile) > 0 {
-		if _, err := os.Stat(w.WebAssemblyFile); os.IsNotExist(err) {
+		files, err := filepath.Glob(w.WebAssemblyFile)
+		if err != nil {
+			return err
+		}
+		if len(files) == 0 {
 			return fmt.Errorf("wasm file does not exist: %s", w.WebAssemblyFile)
 		}
 	}

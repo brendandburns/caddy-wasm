@@ -141,7 +141,11 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 }
 
 func (w *WebAssembly) ServeHTTP(res http.ResponseWriter, req *http.Request, next caddyhttp.Handler) error {
-	instance, err := w.loader.GetOrLoad(req.Context(), w.defaultVersion)
+	version := req.Header.Get("x-caddy-wasm-version")
+	if len(version) == 0 {
+		version = w.defaultVersion
+	}
+	instance, err := w.loader.GetOrLoad(req.Context(), version)
 	if instance == nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		res.Write([]byte("Failed to load wasm: " + err.Error()))

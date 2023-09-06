@@ -9,22 +9,38 @@ import (
 	"strings"
 )
 
+type FileSystemInterface interface {
+	Glob(p string) ([]string, error)
+	ReadFile(f string) ([]byte, error)
+}
+
+type osfs struct{}
+
+func (o osfs) Glob(pattern string) ([]string, error) {
+	return filepath.Glob(pattern)
+}
+
+func (o osfs) ReadFile(file string) ([]byte, error) {
+	return os.ReadFile(file)
+}
+
 type VersionCollection interface {
 	GetVersions() ([]string, error)
 	GetWebAssembly(version string) ([]byte, error)
 }
 
 type fileSystemVersionCollection struct {
+	fs   FileSystemInterface
 	dir  string
 	glob string
 }
 
 func ForFilesystemGlob(dir, glob string) VersionCollection {
-	return &fileSystemVersionCollection{dir, glob}
+	return &fileSystemVersionCollection{osfs{}, dir, glob}
 }
 
 func (f *fileSystemVersionCollection) GetVersions() ([]string, error) {
-	files, err := filepath.Glob(filepath.Join(f.dir, f.glob))
+	files, err := f.fs.Glob(filepath.Join(f.dir, f.glob))
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +52,7 @@ func (f *fileSystemVersionCollection) GetVersions() ([]string, error) {
 }
 
 func (f *fileSystemVersionCollection) GetWebAssembly(version string) ([]byte, error) {
-	return os.ReadFile(filepath.Join(f.dir, version))
+	return f.fs.ReadFile(filepath.Join(f.dir, version))
 }
 
 type urlVersionCollection struct {

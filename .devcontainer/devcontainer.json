@@ -1,0 +1,20 @@
+{
+    "name": "Caddy WASM",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+
+    "features": {
+        "devwasm.azurecr.io/dev-wasm/dev-wasm-feature/wasmtime-wasi:0.0.9": {
+            "version": "20",
+            "wasmtime_version": "v9.0.4",
+            "wit_version": "0.4.0"
+        },
+        "ghcr.io/devcontainers/features/common-utils": {}
+    },
+    "remoteEnv": {
+        "PATH": "${containerEnv:PATH}:/usr/local/lib/wasi-sdk-20.0/bin:/usr/local/lib",
+        "GOROOT": "/usr/local/go"
+    }
+}

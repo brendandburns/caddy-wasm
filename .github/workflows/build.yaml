@@ -9,6 +9,9 @@ on:
         default: "0.29.0"
         description: "The version (e.g. 0.29.0) of TinyGo to install"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,3 +29,8 @@ jobs:
       - name: Build
         working-directory: ./examples/tinygo
         run: tinygo build -o tinygo.wasm -target wasi
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: 0.0.1
+          files: examples/tinygo/tinygo.wasm

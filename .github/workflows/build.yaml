@@ -20,9 +20,9 @@ jobs:
           go-version: '1.21'
       - name: Install tinygo
         run: |
-          curl https://github.com/tinygo-org/tinygo/releases/download/v${github.event.inputs.tinygo_version}/tinygo_${github.event.inputs.tinygo_version}_amd64.deb -L --output tinygo_${github.event.inputs.tinygo_version}_amd64.deb && \
-          dpkg -i tinygo_${github.event.inputs.tinygo_version}_amd64.deb && \
-          rm tinygo_${github.event.inputs.tinygo_version}_amd64.deb
+          curl https://github.com/tinygo-org/tinygo/releases/download/v0.29.0/tinygo_0.29.0_amd64.deb -L --output tinygo_0.29.0_amd64.deb && \
+          dpkg -i tinygo_0.29.0_amd64.deb && \
+          rm tinygo_0.29.0_amd64.deb
       - name: Build
         run: |
           cd examples/tinygo

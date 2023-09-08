@@ -21,9 +21,8 @@ jobs:
       - name: Install tinygo
         run: |
           curl https://github.com/tinygo-org/tinygo/releases/download/v0.29.0/tinygo_0.29.0_amd64.deb -L --output tinygo_0.29.0_amd64.deb && \
-          dpkg -i tinygo_0.29.0_amd64.deb && \
+          sudo dpkg -i tinygo_0.29.0_amd64.deb && \
           rm tinygo_0.29.0_amd64.deb
       - name: Build
-        run: |
-          cd examples/tinygo
-          tinygo build -o tinygo.wasm -target wasi
+        working-directory: ./examples/tinygo
+        run: tinygo build -o tinygo.wasm -target wasi

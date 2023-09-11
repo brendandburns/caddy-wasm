@@ -1,0 +1,20 @@
+{
+	"apps": {
+		"http": {
+			"servers": {
+				"example": {
+					"listen": [":2015"],
+					"routes": [
+						{
+							"handle": [{
+								"handler": "wasm",
+								"wasm_file": "tinygo.wasm",
+								"wasm_github": "brendandburns/caddy-wasm"
+							}]
+						}
+					]
+				}
+			}
+		}
+	}
+}

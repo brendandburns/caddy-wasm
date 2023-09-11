@@ -6,30 +6,16 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/google/go-github/v55/github"
 )
 
-type FileSystemInterface interface {
-	Glob(p string) ([]string, error)
-	ReadFile(f string) ([]byte, error)
-}
-
-type osfs struct{}
-
-func (o osfs) Glob(pattern string) ([]string, error) {
-	return filepath.Glob(pattern)
-}
-
-func (o osfs) ReadFile(file string) ([]byte, error) {
-	return os.ReadFile(file)
-}
-
 type VersionCollection interface {
+	// Get Versions should always refresh from source
 	GetVersions() ([]string, error)
+	// GetWebAssembly should work, even if GetVersions() has never been called.
 	GetWebAssembly(version string) ([]byte, error)
 }
 
@@ -124,7 +110,13 @@ func (g *githubReleaseCollection) GetVersions() ([]string, error) {
 func (g *githubReleaseCollection) GetWebAssembly(version string) ([]byte, error) {
 	id, found := g.idMap[version]
 	if !found {
-		return nil, fmt.Errorf("version not found %v", version)
+		if _, e := g.GetVersions(); e != nil {
+			return nil, e
+		}
+		id, found = g.idMap[version]
+		if !found {
+			return nil, fmt.Errorf("couldn't find version: %v", version)
+		}
 	}
 	data, _, e := g.client.Repositories.DownloadReleaseAsset(context.Background(), g.owner, g.repo, id, g.client.Client())
 	if e != nil {

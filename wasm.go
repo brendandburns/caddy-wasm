@@ -24,11 +24,10 @@ func init() {
 }
 
 type WebAssembly struct {
-	wasi           *wasi_http.WasiHTTP
-	rt             wazero.Runtime
-	versions       VersionCollection
-	loader         *VersionedLoader
-	defaultVersion string
+	wasi     *wasi_http.WasiHTTP
+	rt       wazero.Runtime
+	versions VersionCollection
+	loader   *VersionedLoader
 
 	WebAssemblyFile   string `json:"wasm_file,omitempty"`
 	WebAssemblyURL    string `json:"wasm_url,omitempty"`
@@ -111,40 +110,10 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 	if w.versions == nil {
 		return fmt.Errorf("no wasm file or url specified")
 	}
-	loaders := make(map[string]*WebAssemblyLoader)
-	versions, err := w.versions.GetVersions()
+
+	w.loader, err = MakeVersionedLoader(ctx, w.versions, w.rt)
 	if err != nil {
 		return err
-	}
-	if len(versions) == 0 {
-		return fmt.Errorf("no versions found")
-	}
-	w.defaultVersion = versions[0]
-	for _, version := range versions {
-		var data []byte
-		data, err = w.versions.GetWebAssembly(version)
-		if err != nil {
-			return err
-		}
-
-		var mod wazero.CompiledModule
-		mod, err = w.rt.CompileModule(ctx, data)
-		if err != nil {
-			return err
-		}
-
-		loaders[version] = &WebAssemblyLoader{
-			rt:     w.rt,
-			module: mod,
-
-			maxInstances: 10,
-
-			// TODO: fill out this config here
-			moduleConfig: wazero.NewModuleConfig(),
-		}
-	}
-	w.loader = &VersionedLoader{
-		Loaders: loaders,
 	}
 
 	_, err = wasi_snapshot_preview1.Instantiate(ctx, w.rt)
@@ -163,7 +132,7 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 func (w *WebAssembly) ServeHTTP(res http.ResponseWriter, req *http.Request, next caddyhttp.Handler) error {
 	version := req.Header.Get("x-caddy-wasm-version")
 	if len(version) == 0 {
-		version = w.defaultVersion
+		version = w.loader.DefaultVersion
 	}
 	instance, err := w.loader.GetOrLoad(req.Context(), version)
 	if instance == nil {

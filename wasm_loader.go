@@ -91,7 +91,35 @@ func (w *WebAssemblyLoader) GetOrLoad(ctx context.Context) (*ModuleInstance, err
 }
 
 type VersionedLoader struct {
-	Loaders map[string]*WebAssemblyLoader
+	DefaultVersion string
+	Versions       VersionCollection
+	Loaders        map[string]*WebAssemblyLoader
+
+	rt wazero.Runtime
+}
+
+func MakeVersionedLoader(ctx context.Context, v VersionCollection, rt wazero.Runtime) (*VersionedLoader, error) {
+	versions, err := v.GetVersions()
+	if err != nil {
+		return nil, err
+	}
+	if len(versions) == 0 {
+		return nil, fmt.Errorf("no versions found")
+	}
+	defaultVersion := versions[0]
+	loader := &VersionedLoader{
+		DefaultVersion: defaultVersion,
+		Versions:       v,
+		Loaders:        make(map[string]*WebAssemblyLoader),
+		rt:             rt,
+	}
+	for _, version := range versions {
+		// TODO: lazy load here?
+		if err := loader.loadVersion(ctx, version); err != nil {
+			return nil, err
+		}
+	}
+	return loader, nil
 }
 
 func (v *VersionedLoader) GetOrLoad(ctx context.Context, version string) (*ModuleInstance, error) {
@@ -100,4 +128,29 @@ func (v *VersionedLoader) GetOrLoad(ctx context.Context, version string) (*Modul
 		return nil, fmt.Errorf("no such version: %s", version)
 	}
 	return loader.GetOrLoad(ctx)
+}
+
+func (v *VersionedLoader) loadVersion(ctx context.Context, version string) error {
+	var data []byte
+	data, err := v.Versions.GetWebAssembly(version)
+	if err != nil {
+		return err
+	}
+
+	var mod wazero.CompiledModule
+	mod, err = v.rt.CompileModule(ctx, data)
+	if err != nil {
+		return err
+	}
+
+	v.Loaders[version] = &WebAssemblyLoader{
+		rt:     v.rt,
+		module: mod,
+
+		maxInstances: 10,
+
+		// TODO: fill out this config here
+		moduleConfig: wazero.NewModuleConfig(),
+	}
+	return nil
 }

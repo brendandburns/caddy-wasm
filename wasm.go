@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"strings"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -29,8 +30,9 @@ type WebAssembly struct {
 	loader         *VersionedLoader
 	defaultVersion string
 
-	WebAssemblyFile string `json:"wasm_file,omitempty"`
-	WebAssemblyURL  string `json:"wasm_url,omitempty"`
+	WebAssemblyFile   string `json:"wasm_file,omitempty"`
+	WebAssemblyURL    string `json:"wasm_url,omitempty"`
+	WebAssemblyGithub string `json:"wasm_github,omitempty"`
 }
 
 func (WebAssembly) CaddyModule() caddy.ModuleInfo {
@@ -41,14 +43,14 @@ func (WebAssembly) CaddyModule() caddy.ModuleInfo {
 }
 
 func (w *WebAssembly) Validate() error {
-	if len(w.WebAssemblyFile) == 0 && len(w.WebAssemblyURL) == 0 {
+	if len(w.WebAssemblyFile) == 0 && len(w.WebAssemblyURL) == 0 && len(w.WebAssemblyGithub) == 0 {
 		return fmt.Errorf("no wasm file or url specified")
 	}
 	if len(w.WebAssemblyFile) > 0 && len(w.WebAssemblyURL) > 0 {
 		return fmt.Errorf("both wasm file and url specified")
 	}
 
-	if len(w.WebAssemblyFile) > 0 {
+	if len(w.WebAssemblyFile) > 0 && len(w.WebAssemblyGithub) == 0 {
 		files, err := filepath.Glob(w.WebAssemblyFile)
 		if err != nil {
 			return err
@@ -63,17 +65,32 @@ func (w *WebAssembly) Validate() error {
 			return fmt.Errorf("invalid wasm url: %s", w.WebAssemblyURL)
 		}
 	}
+	if len(w.WebAssemblyGithub) > 0 {
+		parts := strings.Split(w.WebAssemblyGithub, "/")
+		if len(parts) != 2 {
+			return fmt.Errorf("expected <owner>/<repo> for github")
+		}
+		if len(w.WebAssemblyFile) == 0 {
+			return fmt.Errorf("wasm_file is required for github")
+		}
+	}
 	return nil
 }
 
 func (w *WebAssembly) GetVersionCollection() VersionCollection {
-	if len(w.WebAssemblyFile) > 0 {
+	if len(w.WebAssemblyFile) > 0 && len(w.WebAssemblyGithub) == 0 {
 		dir := filepath.Dir(w.WebAssemblyFile)
 		glob := filepath.Base(w.WebAssemblyFile)
 		return ForFilesystemGlob(dir, glob)
 	}
 	if len(w.WebAssemblyURL) > 0 {
 		return ForURL(w.WebAssemblyURL)
+	}
+	if len(w.WebAssemblyGithub) > 0 {
+		parts := strings.Split(w.WebAssemblyGithub, "/")
+		fmt.Printf("%s %s %s\n", parts[0], parts[1], w.WebAssemblyFile)
+		v, _ := ForGithubRepository(parts[0], parts[1], w.WebAssemblyFile)
+		return v
 	}
 	return nil
 }

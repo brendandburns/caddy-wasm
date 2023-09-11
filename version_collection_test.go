@@ -3,6 +3,7 @@ package caddy_wasm
 import (
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 	"testing/fstest"
 )
@@ -70,5 +71,27 @@ func TestFileVersions(t *testing.T) {
 		if string(d) != test.d {
 			t.Errorf("Unexpected data: %v", string(d))
 		}
+	}
+}
+
+func TestGithub(t *testing.T) {
+	v, e := ForGithubRepository("brendandburns", "caddy-wasm", "tinygo.wasm")
+	if e != nil {
+		t.Errorf("unexpected error: %v", e.Error())
+	}
+	vs, e := v.GetVersions()
+	if e != nil {
+		t.Errorf("unexpected error: %v", e.Error())
+	}
+	if !reflect.DeepEqual(vs, []string{"0.0.1"}) {
+		t.Errorf("unexpected output: %v", vs)
+	}
+
+	data, e := v.GetWebAssembly("0.0.1")
+	if e != nil {
+		t.Errorf("unexpected error: %v", e.Error())
+	}
+	if len(data) == 0 {
+		t.Errorf("unexpected data: %v", data)
 	}
 }

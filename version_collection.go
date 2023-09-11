@@ -1,12 +1,16 @@
 package caddy_wasm
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/google/go-github/v55/github"
 )
 
 type FileSystemInterface interface {
@@ -79,4 +83,53 @@ func (u *urlVersionCollection) GetWebAssembly(version string) ([]byte, error) {
 	}
 	defer res.Body.Close()
 	return io.ReadAll(res.Body)
+}
+
+type githubReleaseCollection struct {
+	owner    string
+	repo     string
+	fileName string
+	idMap    map[string]int64
+	client   *github.Client
+}
+
+func ForGithubRepository(owner, repo, fileName string) (VersionCollection, error) {
+	client := github.NewClient(nil)
+	return &githubReleaseCollection{
+		owner:    owner,
+		repo:     repo,
+		fileName: fileName,
+		idMap:    make(map[string]int64),
+		client:   client}, nil
+}
+
+func (g *githubReleaseCollection) GetVersions() ([]string, error) {
+	r, _, e := g.client.Repositories.ListReleases(context.Background(), g.owner, g.repo, nil)
+	if e != nil {
+		return nil, e
+	}
+	v := []string{}
+	for _, release := range r {
+		for _, asset := range release.Assets {
+			if *asset.Name == g.fileName {
+				v = append(v, *release.Name)
+				g.idMap[*release.Name] = *asset.ID
+				break
+			}
+		}
+	}
+	return v, nil
+}
+
+func (g *githubReleaseCollection) GetWebAssembly(version string) ([]byte, error) {
+	id, found := g.idMap[version]
+	if !found {
+		return nil, fmt.Errorf("version not found %v", version)
+	}
+	data, _, e := g.client.Repositories.DownloadReleaseAsset(context.Background(), g.owner, g.repo, id, g.client.Client())
+	if e != nil {
+		return nil, e
+	}
+	defer data.Close()
+	return io.ReadAll(data)
 }

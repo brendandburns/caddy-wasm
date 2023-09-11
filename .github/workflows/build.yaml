@@ -8,6 +8,9 @@ on:
         required: false
         default: "0.29.0"
         description: "The version (e.g. 0.29.0) of TinyGo to install"
+      tag:
+        type: string
+        required: true
 
 permissions:
   contents: write
@@ -32,5 +35,5 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: 0.0.1
+          tag_name: ${{ inputs.tag }}
           files: examples/tinygo/tinygo.wasm

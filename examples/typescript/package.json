@@ -1,0 +1,20 @@
+{
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./build/main.js",
+            "types": "./build/main.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "asc main.ts --target release",
+        "start": "wasmtime --wasi-modules=experimental-wasi-http build/main.wasm"
+    },
+    "devDependencies": {
+        "@assemblyscript/wasi-shim": "^0.1.0",
+        "assemblyscript": "^0.24.1"
+    },
+    "dependencies": {
+        "as-wasi": "github:jedisct1/as-wasi"
+    }
+}

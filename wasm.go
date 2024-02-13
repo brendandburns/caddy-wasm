@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/brendandburns/wazero-http/wasi_http"
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
-	"github.com/stealthrocket/wasi-go/imports/wasi_http"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 )
@@ -29,9 +29,10 @@ type WebAssembly struct {
 	versions VersionCollection
 	loader   *VersionedLoader
 
-	WebAssemblyFile   string `json:"wasm_file,omitempty"`
-	WebAssemblyURL    string `json:"wasm_url,omitempty"`
-	WebAssemblyGithub string `json:"wasm_github,omitempty"`
+	WebAssemblyFile    string `json:"wasm_file,omitempty"`
+	WebAssemblyURL     string `json:"wasm_url,omitempty"`
+	WebAssemblyGithub  string `json:"wasm_github,omitempty"`
+	WebAssemblyVersion string `json:"wasm_wasi_http_version,omitempty"`
 }
 
 func (WebAssembly) CaddyModule() caddy.ModuleInfo {
@@ -72,6 +73,9 @@ func (w *WebAssembly) Validate() error {
 		if len(w.WebAssemblyFile) == 0 {
 			return fmt.Errorf("wasm_file is required for github")
 		}
+	}
+	if len(w.WebAssemblyVersion) == 0 {
+		return fmt.Errorf("wasi http version is required")
 	}
 	return nil
 }
@@ -121,7 +125,10 @@ func (w *WebAssembly) Provision(ctx caddy.Context) error {
 		return err
 	}
 
-	w.wasi = wasi_http.MakeWasiHTTP()
+	if len(w.WebAssemblyVersion) == 0 {
+		return fmt.Errorf("wasi http version is required")
+	}
+	w.wasi = wasi_http.MakeWasiHTTP(w.WebAssemblyVersion)
 	if err = w.wasi.Instantiate(ctx, w.rt); err != nil {
 		return err
 	}
@@ -146,7 +153,7 @@ func (w *WebAssembly) ServeHTTP(res http.ResponseWriter, req *http.Request, next
 		res.Write([]byte("Failed to load wasm: " + err.Error()))
 		return err
 	}
-	handler := w.wasi.MakeHandler(instance.module)
+	handler := w.wasi.MakeHandler(req.Context(), instance.module)
 	handler.ServeHTTP(res, req)
 	return nil
 }

@@ -1,6 +1,15 @@
 module github.com/brendandburns/caddy_wasm
 
-go 1.20
+go 1.21.6
+
+toolchain go1.22.0
+
+require (
+	github.com/brendandburns/wazero-http v0.0.0-20240209145732-0a0cd901a70c
+	github.com/caddyserver/caddy/v2 v2.7.4
+	github.com/google/go-github/v55 v55.0.0
+	github.com/tetratelabs/wazero v1.6.0
+)
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -13,7 +22,6 @@ require (
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/caddyserver/caddy/v2 v2.7.4 // indirect
 	github.com/caddyserver/certmagic v0.19.2 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -34,7 +42,6 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/cel-go v0.15.1 // indirect
-	github.com/google/go-github/v55 v55.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20210720184732-4bb14d4b1be1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -82,10 +89,8 @@ require (
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/cobra v1.7.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stealthrocket/wasi-go v0.8.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/tailscale/tscert v0.0.0-20230509043813-4e9cb4f2b4ad // indirect
-	github.com/tetratelabs/wazero v1.2.0 // indirect
 	github.com/urfave/cli v1.22.14 // indirect
 	github.com/zeebo/blake3 v0.2.3 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect

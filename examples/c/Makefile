@@ -1,4 +1,4 @@
-wasi_sdk := /usr/local/lib/wasi-sdk-20.0
+wasi_sdk := /usr/local/lib/wasi-sdk-21.0
 cc := ${wasi_sdk}/bin/clang
 ar := ${wasi_sdk}/bin/ar
 lib_objs := client.o wasi_http.o
@@ -19,7 +19,7 @@ client.o: gen
 libwasihttp.a: ${lib_objs}
 	${ar} cr libwasihttp.a ${lib_objs}
 
-wasi-http: ; git clone https://github.com/WebAssembly/wasi-http; cd wasi-http; git checkout v0.2.0-rc-2023-11-10 ; cp ../client.wit wit/client.wit; cd ../
+wasi-http: ; git clone https://github.com/WebAssembly/wasi-http; cd wasi-http; git checkout v0.2.0 ; cp ../client.wit wit/client.wit; cd ../
 
 gen: wasi-http ; wit-bindgen c ./wasi-http/wit -w client
 

@@ -9,7 +9,7 @@
 							"handle": [{
 								"handler": "wasm",
                                 "wasm_file": "examples/c/server.wasm",
-								"wasm_wasi_http_version": "2023_11_10"
+								"wasm_wasi_http_version": "v0.2.0"
 							}]
 						}
 					]

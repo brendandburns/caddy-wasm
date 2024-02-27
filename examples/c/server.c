@@ -12,6 +12,6 @@ int main() {
 }
 
 // This is hack and doesn't actually do anything for this server 
-bool exports_wasi_cli_0_2_0_rc_2023_11_10_run_run() {
+bool exports_wasi_cli_run_run() {
     return !main();
 }

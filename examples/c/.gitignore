@@ -1,0 +1,6 @@
+client.c
+client.h
+*.o
+*.a
+*.wasm
+wasi-http/

@@ -96,6 +96,8 @@ github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kB
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 github.com/brendandburns/wazero-http v0.0.0-20240209145732-0a0cd901a70c h1:hZQu5mmej0r6byxQa9C9cNiZt4mbKPZ1Vs9rt8ZbLIY=
 github.com/brendandburns/wazero-http v0.0.0-20240209145732-0a0cd901a70c/go.mod h1:lfhH5fZDAg05nca1+J/0lB9L6i90R63WFSj3oVdQnHU=
+github.com/brendandburns/wazero-http v0.0.0-20240226015936-5c3a469856e5 h1:hhtQnCaMe3uVchtMpeXuSixLCPhPQpM5UWClkZA1Pko=
+github.com/brendandburns/wazero-http v0.0.0-20240226015936-5c3a469856e5/go.mod h1:lfhH5fZDAg05nca1+J/0lB9L6i90R63WFSj3oVdQnHU=
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/caddyserver/caddy/v2 v2.7.4 h1:J8nisjdOxnYHXlorUKXY75Gr6iBfudfoGhrJ8t7/flI=
 github.com/caddyserver/caddy/v2 v2.7.4/go.mod h1:/OH2g/56QCSCajEWsFa8kjwacziG/YFxeWgKacnK6KE=

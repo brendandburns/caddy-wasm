@@ -5,7 +5,7 @@ go 1.21.6
 toolchain go1.22.0
 
 require (
-	github.com/brendandburns/wazero-http v0.0.0-20240209145732-0a0cd901a70c
+	github.com/brendandburns/wazero-http v0.0.0-20240226015936-5c3a469856e5
 	github.com/caddyserver/caddy/v2 v2.7.4
 	github.com/google/go-github/v55 v55.0.0
 	github.com/tetratelabs/wazero v1.6.0

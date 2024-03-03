@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/dev-wasm/dev-wasm-go/http/server"
+	"github.com/dev-wasm/dev-wasm-go/lib/http/server/handler"
 )
 
 func main() {
@@ -11,5 +11,5 @@ func main() {
 		w.WriteHeader(200)
 		w.Write([]byte("This is the beta release!"))
 	})
-	server.ListenAndServe(nil)
+	handler.ListenAndServe(nil)
 }

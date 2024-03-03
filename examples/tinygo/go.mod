@@ -1,5 +1,5 @@
-module github.com/brendandburns/caddy-wasm/example
+module github.com/brendandburns/caddy-wasm/examples/tinygo
 
-go 1.21.1
+go 1.22.0
 
-require github.com/dev-wasm/dev-wasm-go/http v0.0.0-20230803142009-0dee5e3d3722 // indirect
+require github.com/dev-wasm/dev-wasm-go/lib v0.0.0-20240303042358-fc5595aac68e

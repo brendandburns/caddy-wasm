@@ -9,7 +9,7 @@
 							"handle": [{
 								"handler": "wasm",
                                 "wasm_file": "examples/tinygo/tinygo.wasm",
-								"wasm_wasi_http_version": "v1"
+								"wasm_wasi_http_version": "v0.2.0"
 							}]
 						}
 					]

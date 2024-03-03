@@ -1,2 +1,2 @@
-github.com/dev-wasm/dev-wasm-go/http v0.0.0-20230803142009-0dee5e3d3722 h1:H8rt2at/lzf9hSuZX/+/E0Rqp5o7hYOZ1XZiOGVkwSw=
-github.com/dev-wasm/dev-wasm-go/http v0.0.0-20230803142009-0dee5e3d3722/go.mod h1:K7HKbanDfLH3UL/hvExI1hVPetqnn9OZ4IOFcD5Pzw0=
+github.com/dev-wasm/dev-wasm-go/lib v0.0.0-20240303042358-fc5595aac68e h1:h9V6mO8DO5TaF+bNsfeifi+zuQxE/ZrlObE4yKN5gOo=
+github.com/dev-wasm/dev-wasm-go/lib v0.0.0-20240303042358-fc5595aac68e/go.mod h1:eyHGUpflr/37EgTuiJg+m+qz9zVeq6Ffk1ltvWMb8qY=

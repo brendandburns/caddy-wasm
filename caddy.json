@@ -8,7 +8,8 @@
 						{
 							"handle": [{
 								"handler": "wasm",
-								"wasm_url": "https://raw.githubusercontent.com/brendandburns/wasi-go/tinygo_server/testdata/tinygo/http/server.wasm"
+								"wasm_url": "https://github.com/brendandburns/caddy-wasm/releases/download/0.2.0/server.wasm",
+								"wasm_wasi_http_version": "v0.2.0"
 							}]
 						}
 					]

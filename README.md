@@ -14,8 +14,8 @@ The server uses the [WASI-HTTP](https://github.com/WebAssembly/wasi-http) specif
 
 There are examples here:
 * Go (TinyGo) - https://github.com/brendandburns/caddy-wasm/tree/main/examples/tinygo
+* C - https://github.com/brendandburns/caddy-wasm/tree/main/examples/c
 * Dotnet - https://github.com/dev-wasm/dev-wasm-dotnet/blob/main/www-wasi/Program.cs
-* C - https://github.com/stealthrocket/wasi-go/blob/main/testdata/c/http/server.c
 
 More to come in the future!
 

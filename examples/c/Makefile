@@ -1,28 +1,21 @@
 wasi_sdk := /usr/local/lib/wasi-sdk-21.0
 cc := ${wasi_sdk}/bin/clang
-ar := ${wasi_sdk}/bin/ar
-lib_objs := client.o wasi_http.o
 
-.phony: gen clean run
+.phony: clean
 
 default: server.wasm
 
-# This is necessary for a full `make` from clean b/c client.c doesn't exist when the make starts...
-# there must be a better way to do this.
-client.o: gen
-	${cc} -c client.c -o client.o
+libwasihttp.a:
+	wget https://github.com/dev-wasm/dev-wasm-c/releases/download/0.2.0/libwasihttp-0.2.0.tgz
+	tar -xvzf libwasihttp-0.2.0.tgz
+	rm libwasihttp-0.2.0.tgz
+	cat wasi_http.h | grep -v '#include "client.h"' > wasi_http.h.fixed
+	mv wasi_http.h.fixed wasi_http.h
 
 %.o : %.c
 	@echo "Compiling c file into o file"
 	${cc} -c $< -o $@
 
-libwasihttp.a: ${lib_objs}
-	${ar} cr libwasihttp.a ${lib_objs}
+server.wasm: libwasihttp.a server.o; ${cc} server.o -L. -lwasihttp -o server.wasm
 
-wasi-http: ; git clone https://github.com/WebAssembly/wasi-http; cd wasi-http; git checkout v0.2.0 ; cp ../client.wit wit/client.wit; cd ../
-
-gen: wasi-http ; wit-bindgen c ./wasi-http/wit -w client
-
-server.wasm: gen server.o libwasihttp.a; ${cc} server.o -L. -lwasihttp -o server.wasm
-
-clean: ; rm -f client.c client.h *.o *.wasm *.a; rm -rf wasi-http
+clean: ; rm -f *.o *.wasm *.a *.tgz wasi_http.h

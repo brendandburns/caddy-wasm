@@ -1,6 +1,5 @@
-client.c
-client.h
 *.o
 *.a
 *.wasm
-wasi-http/
+*.tgz
+wasi_http.h

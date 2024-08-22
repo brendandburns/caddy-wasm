@@ -5,15 +5,15 @@
     },
     "features": {
         "devwasm.azurecr.io/dev-wasm/dev-wasm-feature/wasmtime-wasi:0.0.15": {
-            "version": "21",
-            "wasmtime_version": "v18.0.1",
-            "wit_version": "0.19.2"
+            "version": "22",
+            "wasmtime_version": "v24.0.0",
+            "wit_version": "0.30.0"
         },
         "ghcr.io/devcontainers/features/common-utils": {},
         "ghcr.io/devcontainers/features/go": {}
     },
     "remoteEnv": {
-        "PATH": "${containerEnv:PATH}:/usr/local/lib/wasi-sdk-20.0/bin:/usr/local/lib",
+        "PATH": "${containerEnv:PATH}:/usr/local/lib/wasi-sdk-24.0/bin:/usr/local/lib",
         "GOROOT": "/usr/local/go"
     }
 }

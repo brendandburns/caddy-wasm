@@ -14,4 +14,4 @@ tinygo build -o tinygo.wasm -target wasi
 CADDY_WASM_DIR=/some/path/to/caddy-wasm
 cd ${CADDY_WASM_DIR}
 xcaddy run --config examples/tinygo/caddy.json
-```
+```cd

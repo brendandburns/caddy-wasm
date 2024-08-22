@@ -1,4 +1,4 @@
-wasi_sdk := /usr/local/lib/wasi-sdk-21.0
+wasi_sdk := /usr/local/lib/wasi-sdk-22.0
 cc := ${wasi_sdk}/bin/clang
 
 .phony: clean
